@@ -60,8 +60,6 @@ class Autotss:
                 db.insert(newdev)
         print('Added {} new devices to the database'.format(str(num_new)))
 
-        return
-
     def get_board_config(self, device_id):
         """ Using the IPSW.me API, when supplied a device identifier
         the relevant board config will be returned."""
@@ -141,12 +139,12 @@ class Autotss:
             makedirs(save_path)
 
         script_arguments = [self.script_path,
-                           '-d', device['deviceID'],
-                           '-e', device['deviceECID'],
-                           '--boardconfig', device['boardConfig'],
-                           '--buildid', build_id,
-                           '--save-path', save_path,
-                           '-s']
+                            '-d', device['deviceID'],
+                            '-e', device['deviceECID'],
+                            '--boardconfig', device['boardConfig'],
+                            '--buildid', build_id,
+                            '--save-path', save_path,
+                            '-s']
 
         tss_call = Popen(script_arguments, stdout=PIPE)
 
@@ -167,8 +165,6 @@ class Autotss:
             print('[{0}] [{1} - {2}] {3}'.format(device['deviceName'], version_number, build_id,
                                                  'Error, see log file: ' + save_path + '/tsschecker_log.txt'))
 
-        return
-
     def log_blobs_saved(self, device, build_id, version_number):
         """ Taking a reference to a device dictionary, we can
          load the string `blobsSaved` from the database into
@@ -183,8 +179,6 @@ class Autotss:
 
         device['blobsSaved'] = dumps(old_blobs_saved)
 
-        return
-
     def log_blobs_failed(self, script_arguments, save_path, tss_output):
         """ When blobs are unable to be saved, we save
         a log of tsschecker's output in the blobs folder. """
@@ -192,8 +186,6 @@ class Autotss:
         with open(save_path + '/tsschecker_log.txt', 'w') as file:
             file.write(' '.join(script_arguments) + '\n\n')
             file.write('\n'.join(tss_output))
-
-        return
 
     def push_to_database(self):
         """ Loop through all of our devices and update their
@@ -204,8 +196,6 @@ class Autotss:
         for device in self.devices:
             self.database['devices'].update(device, ['deviceECID'])
         print('Done updating database')
-
-        return
 
     def get_script_path(self, user_path):
         """ Determines if the user provided a path to the tsschecker
@@ -218,8 +208,8 @@ class Autotss:
 
         arg_parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
         arg_parser.add_argument("-p", "--path",
-                               help='Supply the path to your tsschecker binary.\nExample: -p /Users/codsane/tsschecker/tsschecker_macos',
-                               required=False, default='')
+                                help='Supply the path to your tsschecker binary.\nExample: -p /Users/codsane/tsschecker/tsschecker_macos',
+                                required=False, default='')
         argument = arg_parser.parse_args()
 
         # Check to see if the user provided the command line argument -p or --path
