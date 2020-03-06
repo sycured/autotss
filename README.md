@@ -1,6 +1,9 @@
 # autotss
 Automatically save shsh2 blobs for signed iOS firmwares using [tsschecker](https://github.com/tihmstar/tsschecker) and the [IPSW.me API](https://ipsw.me/api/ios/docs/2.1/Firmware)
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=sycured_autotss&metric=alert_status)](https://sonarcloud.io/dashboard?id=sycured_autotss)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=sycured_autotss&metric=code_smells)](https://sonarcloud.io/dashboard?id=sycured_autotss)
+
 ## Motivation
 >tsschecker is not only meant to be used to check signing status, but also to explore Apple's tss servers. By using all of its customization possibilities, __you might discover a combination of devices and iOS versions that is now getting signed but wasn't getting signed before.__ -[tihmstar (author of tsschecker)](https://github.com/tihmstar/tsschecker/blob/master/README.md#features)
 
