@@ -74,11 +74,10 @@ class Autotss:
 
         device_info = self.database['devices'].find_one(deviceECID=device_ecid)
 
-        for entry in loads(device_info['blobsSaved']):
-            if entry['buildID'] == build_id:
-                return True
-
-        return False
+        return any(
+            entry['buildID'] == build_id
+            for entry in loads(device_info['blobsSaved'])
+        )
 
     def get_firmware_api(self):
         """ Taking the raw response from the IPSW.me API, process
@@ -148,9 +147,10 @@ class Autotss:
 
         tss_call = Popen(script_arguments, stdout=PIPE)
 
-        tss_output = []
-        for line in TextIOWrapper(tss_call.stdout, encoding='utf-8'):
-            tss_output.append(line.strip())
+        tss_output = [
+            line.strip()
+            for line in TextIOWrapper(tss_call.stdout, encoding='utf-8')
+        ]
 
         ''' Checks console output for the `Saved shsh blobs!`
         string. While this works for now, tsschecker updates
@@ -237,9 +237,10 @@ class Autotss:
             exit()
 
         # Check to make sure user has the right tsschecker version
-        tss_output = []
-        for line in TextIOWrapper(tss_call.stdout, encoding='utf-8'):
-            tss_output.append(line.strip())
+        tss_output = [
+            line.strip()
+            for line in TextIOWrapper(tss_call.stdout, encoding='utf-8')
+        ]
 
         version_number = int(tss_output[0].split('-')[-1].strip())
         if version_number < 247:
