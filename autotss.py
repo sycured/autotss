@@ -30,7 +30,8 @@ class Autotss:
         new_devices = []
         num_new = 0
 
-        # Check to make sure devices.ini exists, otherwise warn and continue without new devices
+        # Check to make sure devices.ini exists, otherwise warn and continue
+        # without new devices
         if path.isfile('devices.ini'):
             config = ConfigParser()
             config.read('devices.ini')
@@ -47,7 +48,8 @@ class Autotss:
                     boardconfig = self.get_board_config(identifier)
 
                 new_devices.append(
-                    {'deviceName': name, 'deviceID': identifier, 'boardConfig': boardconfig, 'deviceECID': ecid,
+                    {'deviceName': name, 'deviceID': identifier,
+                     'boardConfig': boardconfig, 'deviceECID': ecid,
                      'blobsSaved': '[]'})
         else:
             print('Unable to find devices.ini')
@@ -55,10 +57,13 @@ class Autotss:
         # Add only new devices to database
         for newdev in new_devices:
             if not db.find_one(deviceECID=newdev['deviceECID']):
-                print('Device: [{deviceName}] ECID: [{deviceECID}] Board Config: [{boardConfig}]'.format(**newdev))
+                print(
+                    'Device: [{deviceName}] ECID: [{deviceECID}] Board '
+                    'Config: [{boardConfig}]'.format(
+                        **newdev))
                 num_new += 1
                 db.insert(newdev)
-        print('Added {} new devices to the database'.format(str(num_new)))
+        print(f'Added {str(num_new)} new devices to the database')
 
     def get_board_config(self, device_id):
         """ Using the IPSW.me API, when supplied a device identifier
@@ -85,9 +90,12 @@ class Autotss:
          entries. Returns a freshly processed devices JSON containing
          only signed firmware versions. """
 
-        headers = {'User-Agent': 'Script to automatically save shsh blobs (https://github.com/codsane/autotss)'}
+        headers = {
+            'User-Agent': 'Script to automatically save shsh blobs ('
+                          'https://github.com/codsane/autotss)'}
 
-        raw_response = get('https://api.ipsw.me/v2.1/firmwares.json/condensed', headers=headers)
+        raw_response = get('https://api.ipsw.me/v2.1/firmwares.json/condensed',
+                           headers=headers)
 
         device_api = raw_response.json()['devices']
 
@@ -112,13 +120,18 @@ class Autotss:
         print('\nGrabbing devices from the database...')
         self.devices = [row for row in self.database['devices']]
         for device in self.devices:
-            print('Device: [{deviceName}] ECID: [{deviceECID}] Board Config: [{boardConfig}]'.format(**device))
-        print('Grabbed {} devices from the database'.format(len(self.devices)))
+            print(
+                'Device: [{deviceName}] ECID: [{deviceECID}] Board Config: [{'
+                'boardConfig}]'.format(
+                    **device))
+        print(f'Grabbed {len(self.devices)} devices from the database')
 
-        print('\nSaving unsaved blobs for {} devices...'.format(str(len(self.devices))))
+        print(f'\nSaving unsaved blobs for {str(len(self.devices))} devices...')
         for device in self.devices:
-            for firmware in self.live_firmware_api[device['deviceID']]['firmwares']:
-                self.save_blobs(device, firmware['buildid'], firmware['version'])
+            for firmware in self.live_firmware_api[
+                    device['deviceID']]['firmwares']:
+                self.save_blobs(device, firmware['buildid'],
+                                firmware['version'])
 
         print('Done saving blobs')
 
@@ -130,10 +143,12 @@ class Autotss:
         we saved the device/firmware blobs. """
 
         if self.check_for_blobs(device['deviceECID'], build_id):
-            # print('[{0}] [{1}] {2}'.format(device['deviceID'], versionNumber, 'Blobs already saved!'))
+            # print(f'[{device["deviceID"]}] [{versionNumber}] {"Blobs
+            # already saved!"}')
             return
 
-        save_path = 'blobs/' + device['deviceID'] + '/' + device['deviceECID'] + '/' + version_number + '/' + build_id
+        save_path = 'blobs/' + device['deviceID'] + '/' + device[
+            'deviceECID'] + '/' + version_number + '/' + build_id
         if not path.exists(save_path):
             makedirs(save_path)
 
@@ -159,11 +174,12 @@ class Autotss:
         the right file format. '''
         if 'Saved shsh blobs!' in tss_output:
             self.log_blobs_saved(device, build_id, version_number)
-            print('[{0}] [{1} - {2}] {3}'.format(device['deviceName'], version_number, build_id, 'Saved shsh blobs!'))
+            print(f'[{device["deviceName"]}] [{version_number} - {build_id}]'
+                  f'{"Saved shsh blobs!"}')
         else:
             self.log_blobs_failed(script_arguments, save_path, tss_output)
-            print('[{0}] [{1} - {2}] {3}'.format(device['deviceName'], version_number, build_id,
-                                                 'Error, see log file: ' + save_path + '/tsschecker_log.txt'))
+            print(f"[{device['deviceName']}] [{version_number} - {build_id}] "
+                  f"Error, see log file:  {save_path}/tsschecker_log.txt")
 
     def log_blobs_saved(self, device, build_id, version_number):
         """ Taking a reference to a device dictionary, we can
@@ -173,7 +189,8 @@ class Autotss:
          replace `blobsSaved` """
 
         old_blobs_saved = loads(device['blobsSaved'])
-        new_blobs_saved = {'releaseType': 'release', 'versionNumber': version_number, 'buildID': build_id}
+        new_blobs_saved = {'releaseType': 'release',
+                           'versionNumber': version_number, 'buildID': build_id}
 
         old_blobs_saved.append(new_blobs_saved)
 
@@ -207,23 +224,29 @@ class Autotss:
         script_path = None
 
         arg_parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
-        arg_parser.add_argument("-p", "--path",
-                                help='Supply the path to your tsschecker binary.\nExample: -p /Users/codsane/tsschecker/tsschecker_macos',
-                                required=False, default='')
+        arg_parser.add_argument(
+            "-p", "--path", help='Supply the path to your tsschecker '
+                                 'binary.\nExample: -p '
+                                 '/Users/codsane/tsschecker/tsschecker_macos',
+            required=False, default='')
         argument = arg_parser.parse_args()
 
-        # Check to see if the user provided the command line argument -p or --path
+        # Check to see if the user provided the command line argument -p or
+        # --path
         if argument.path:
             script_path = argument.path
 
             # Check to make sure this file exists
             if path.isfile(argument.path):
-                print('Using manually specified tsschecker binary: ' + argument.path)
+                print(f'Using manually specified tsschecker '
+                      f'binary: {argument.path}')
             else:
-                print('Unable to find tsschecker at specificed path: ' + argument.path)
+                print(f'Unable to find tsschecker at specificed '
+                      f'path: {argument.path}')
                 exit()
 
-        # No command line argument provided, check to see if a path was passed to autotss()
+        # No command line argument provided, check to see if a path was
+        # passed to autotss()
         else:
             script_path = "tsschecker"
 
@@ -233,7 +256,9 @@ class Autotss:
             pass
         except OSError:
             print('tsschecker not found. Install or point to with -p')
-            print('Get tsschecker here: https://github.com/encounter/tsschecker/releases')
+            print(
+                'Get tsschecker here: https://github.com/encounter/tsschecker'
+                '/releases')
             exit()
 
         # Check to make sure user has the right tsschecker version
@@ -245,7 +270,10 @@ class Autotss:
         version_number = int(tss_output[0].split('-')[-1].strip())
         if version_number < 247:
             print('Your version of tss checker is too old')
-            print('Get the latest version here: http://api.tihmstar.net/builds/tsschecker/tsschecker-latest.zip')
+            print(
+                'Get the latest version here: '
+                'http://api.tihmstar.net/builds/tsschecker/tsschecker-latest'
+                '.zip')
             print('Unzip into the same folder as autotss')
             exit()
 
