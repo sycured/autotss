@@ -272,7 +272,7 @@ class Autotss:
             print('Your version of tss checker is too old')
             print(
                 'Get the latest version here: '
-                'http://api.tihmstar.net/builds/tsschecker/tsschecker-latest'
+                'https://api.tihmstar.net/builds/tsschecker/tsschecker-latest'
                 '.zip')
             print('Unzip into the same folder as autotss')
             exit()
